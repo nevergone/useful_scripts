@@ -22,45 +22,44 @@ function delete_temp {
 
 function script_exit_common {
   # common exit function: success and faultly operation
+  delete_temp
   $GITOLITE writable @all on  # enable "git push" command
 }
 
 function script_ok {
   # exit function: success operation
+  script_exit_common ok "$*"
   echo $1
-  logger "gitolite backup - success: " $1
-  delete_temp
-  script_exit_common
+  logger "gitolite backup - success:" $1
   exit 0
 }
 
 function script_error {
   # exit function: faultly operation
+  script_exit_common error "$*"
   echo $1
-  logger "gitolite backup - error: " $1
-  delete_temp
-  script_exit_common
+  logger "gitolite backup - error:" $1
   exit -1
 }
 
 
 ## exports and variables
 export -f clean_repos
-export DATE=`date +%F-%H-%M-%S`  # result format: 2016-07-04-15-25-11
-export BACKUP_DIR="/srv/gitolite"
-export GITOLITE_REPO_DIR="/srv/gitolite/repositories"
-export TEMP_DIR="/tmp/repo_backup"
-export BACKUP_FILENAME="gitolite-$DATE.tar.xz"
-export BACKUP_MESSAGE="please wait"
-export COMPRESS_PARAMS="XZ_OPT=-9"
-export GPG_PARAMS="--cipher-algo AES256"
-export TAR_PARAMS="-Jcvf"
-# export GPG_PASSWORD=""  # plain-text password
-export GPG_PASSWORD=`cat archive_password.txt`  # password file
+export DATE=`date +%F-%H-%M-%S`  # current date, result format: 2016-07-04-15-25-11
+export BACKUP_DIR="/srv/gitolite"  # backup destination directory
+export GITOLITE_REPO_DIR="/srv/gitolite/repositories"  # source gitolite directory
+export TEMP_DIR="/tmp/repo_backup"  # temporary directory
+export BACKUP_FILENAME="gitolite-$DATE.tar.xz"  # backup filename
+export GIT_PUSH_DISABLED_MESSAGE="please wait"  # "git push" disabled message
+export COMPRESS_PARAMS="XZ_OPT=-9"  # compression type and level
+export GPG_PARAMS="--cipher-algo AES256" # gpg command-line parameters
+export TAR_PARAMS="-Jcvf"  # tar command-line parameters
+# export GPG_PASSWORD=""  # use plain-text password for encrypted backup
+export GPG_PASSWORD=`cat archive_password.txt`  # use password file for encrypted backup
 
 
 ## main program
-echo $BACKUP_MESSAGE | $GITOLITE writable @all off  # disable "git push" command
+echo $GIT_PUSH_DISABLED_MESSAGE | $GITOLITE writable @all off  # disable "git push" command
 find $GITOLITE_REPO_DIR -name '*.git' -type d -exec bash -c 'clean_repos "$0"' {} \;
 if [[ -n $GPG_PASSWORD ]]
 then
