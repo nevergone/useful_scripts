@@ -45,6 +45,7 @@ function script_exit_ok {
       else
         echo "backup file not deleted: "${BACKUP_FILES[$i]}
         logger "gitolite backup - error: backup file not deleted: "${BACKUP_FILES[$i]}
+        exit -1
       fi
       i=$[$i+1]
     done
