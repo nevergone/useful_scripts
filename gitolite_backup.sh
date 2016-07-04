@@ -22,6 +22,7 @@ function script_ok {
   echo $1
   logger "gitolite backup - success: " $1
   delete_temp
+  $GITOLITE writable @all on  # enable "git push" command
   exit 0
 }
 
@@ -29,6 +30,7 @@ function script_error {
   echo $1
   logger "gitolite backup - error: " $1
   delete_temp
+  $GITOLITE writable @all on  # enable "git push" command
   exit -1
 }
 
@@ -75,5 +77,4 @@ else
     script_error "backup file not exist: $BACKUP_FILENAME"
   fi
 fi
-$GITOLITE writable @all on  # enable "git push" command
 script_ok "backup complete: $BACKUP_FILENAME"
