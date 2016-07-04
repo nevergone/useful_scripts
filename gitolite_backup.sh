@@ -67,12 +67,12 @@ function script_exit_error {
 ## exports and variables
 export -f clean_repos
 export DATE=`date +%F-%H-%M-%S`  # current date, result format: 2016-07-04-15-25-11
-export BACKUP_DIR="/srv/gitolite"  # backup destination directory
+export BACKUP_DIR="/srv/gitolite/b"  # backup destination directory
 export GITOLITE_REPO_DIR="/srv/gitolite/repositories"  # source gitolite directory
 export TEMP_DIR="/tmp/repo_backup"  # temporary directory
 export BACKUP_FILENAME="gitolite-$DATE.tar.xz"  # backup filename
+export BACKUP_FILE_COUNTER_LIMIT="2"  # maximum count of backup files, 0: not delete old files
 export GIT_PUSH_DISABLED_MESSAGE="please wait"  # "git push" disabled message
-export BACKUP_FILE_COUNTER_LIMIT="0"  # maximum count of backup files, 0: not delete old files
 export COMPRESS_PARAMS="XZ_OPT=-9"  # compression type and level
 export GPG_PARAMS="--cipher-algo AES256" # gpg command-line parameters
 export TAR_PARAMS="-Jcvf"  # tar command-line parameters
