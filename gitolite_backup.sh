@@ -14,13 +14,31 @@ function clean_repos {
   cd $1; $GIT fsck; $GIT gc --prune=now
 }
 
+function delete_temp {
+  rm -rf $TEMP_DIR
+}
+
+function script_ok {
+  echo $1
+  logger "gitolite backup - success: " $1
+  delete_temp
+  exit 0
+}
+
+function script_error {
+  echo $1
+  logger "gitolite backup - error: " $1
+  delete_temp
+  exit -1
+}
+
 
 ## exports and variables
 export -f clean_repos
 export DATE=`date +%F-%H-%M-%S`  # result format: 2016-07-04-15-25-11
 export BACKUP_DIR="/srv/gitolite"
 export GITOLITE_REPO_DIR="/srv/gitolite/repositories"
-export TEMP_DIR="/tmp"
+export TEMP_DIR="/tmp/repo_backup"
 export BACKUP_FILENAME="gitolite-$DATE.tar.xz"
 export BACKUP_MESSAGE="please wait"
 export COMPRESS_PARAMS="XZ_OPT=-9"
@@ -36,14 +54,26 @@ find $GITOLITE_REPO_DIR -name '*.git' -type d -exec bash -c 'clean_repos "$0"' {
 if [[ -n $GPG_PASSWORD ]]
 then
   # encrypt archive
-  mkdir -p $TEMP_DIR/repo_backup
-  chmod 700 $TEMP_DIR/repo_backup
-  export $COMPRESS_PARAMS; tar $TAR_PARAMS $TEMP_DIR/repo_backup/$BACKUP_FILENAME $GITOLITE_REPO_DIR
-  echo $GPG_PASSWORD | $GPG $GPG_PARAMS --passphrase-fd 0 -c $TEMP_DIR/repo_backup/$BACKUP_FILENAME
-  mv $TEMP_DIR/repo_backup/$BACKUP_FILENAME.gpg $BACKUP_DIR/
-  rm -rf $TEMP_DIR/repo_backup
+  mkdir -p $TEMP_DIR
+  chmod 700 $TEMP_DIR
+  export $COMPRESS_PARAMS; tar $TAR_PARAMS $TEMP_DIR/$BACKUP_FILENAME $GITOLITE_REPO_DIR
+  if [[ ! -e $TEMP_DIR/$BACKUP_FILENAME ]]
+  then
+    script_error "backup file not exist: $BACKUP_FILENAME"
+  fi
+  echo $GPG_PASSWORD | $GPG $GPG_PARAMS --passphrase-fd 0 -c $TEMP_DIR/$BACKUP_FILENAME
+  if [[ ! -e $TEMP_DIR/$BACKUP_FILENAME.gpg ]]
+  then
+    script_error "gpg file not exist: $BACKUP_FILENAME.gpg"
+  fi
+  mv $TEMP_DIR/$BACKUP_FILENAME.gpg $BACKUP_DIR/
 else
   # non-encrypt archive
   export $COMPRESS_PARAMS; tar $TAR_PARAMS $BACKUP_DIR/$BACKUP_FILENAME $GITOLITE_REPO_DIR
+  if [[ ! -e $BACKUP_DIR/$BACKUP_FILENAME ]]
+  then
+    script_error "backup file not exist: $BACKUP_FILENAME"
+  fi
 fi
 $GITOLITE writable @all on  # enable "git push" command
+script_ok "backup complete: $BACKUP_FILENAME"
