@@ -10,27 +10,36 @@ export GIT="git"
 
 ## functions
 function clean_repos {
+  # test repository integrity and run garbage collection
   echo -e "\n" $1;
   cd $1; $GIT fsck; $GIT gc --prune=now
 }
 
 function delete_temp {
+  # delete temporary directory and other required commands
   rm -rf $TEMP_DIR
 }
 
+function script_exit_common {
+  # common exit function: success and faultly operation
+  $GITOLITE writable @all on  # enable "git push" command
+}
+
 function script_ok {
+  # exit function: success operation
   echo $1
   logger "gitolite backup - success: " $1
   delete_temp
-  $GITOLITE writable @all on  # enable "git push" command
+  script_exit_common
   exit 0
 }
 
 function script_error {
+  # exit function: faultly operation
   echo $1
   logger "gitolite backup - error: " $1
   delete_temp
-  $GITOLITE writable @all on  # enable "git push" command
+  script_exit_common
   exit -1
 }
 
