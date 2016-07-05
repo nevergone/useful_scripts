@@ -67,7 +67,7 @@ function script_exit_error {
 ## exports and variables
 export -f clean_repos
 export DATE=`date +%F-%H-%M-%S`  # current date, result format: 2016-07-04-15-25-11
-export BACKUP_DIR="/srv/gitolite/b"  # backup destination directory
+export BACKUP_DIR="/srv/gitolite"  # backup destination directory
 export GITOLITE_REPO_DIR="/srv/gitolite/repositories"  # source gitolite directory
 export TEMP_DIR="/tmp/repo_backup"  # temporary directory
 export BACKUP_FILENAME="gitolite-$DATE.tar.xz"  # backup filename
