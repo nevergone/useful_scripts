@@ -34,6 +34,8 @@ function script_exit_ok {
   if [[ BACKUP_FILE_COUNTER_LIMIT -gt 0 ]]
   then
     # delete old backup files
+    OIFS="$IFS"  # backup IFS
+    IFS=$'\n'
     export BACKUP_FILES=( $(ls -1cr "$BACKUP_DIR") )  # get file list, reverse sort by ctime
     export BACKUP_FILES_NUMBER=${#BACKUP_FILES[@]}  # number of files
     i="0"
@@ -51,6 +53,7 @@ function script_exit_ok {
       fi
       i=$((i+1))
     done
+  IFS="$OIFS"  # restore original IFS
   fi
   echo $1
   logger "gitolite backup - success: $1"
@@ -75,7 +78,7 @@ export TEMP_DIR="/tmp/gitolite_backup"  # temporary directory
 export BACKUP_FILENAME="gitolite-$DATE.tar.xz"  # backup filename
 export BACKUP_FILE_COUNTER_LIMIT="2"  # maximum count of backup files, 0: not delete old files
 export GIT_PUSH_DISABLED_MESSAGE="please wait"  # "git push" disabled message
-export COMPRESS_PARAMS="XZ_OPT=-0"  # compression type and level
+export COMPRESS_PARAMS="XZ_OPT=-9"  # compression type and level
 export GPG_PARAMS="--cipher-algo AES256" # gpg command-line parameters
 export TAR_PARAMS="-Jcvf"  # tar command-line parameters
 # export GPG_PASSWORD=""  # use plain-text password for encrypted backup
