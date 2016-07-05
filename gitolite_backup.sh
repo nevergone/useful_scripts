@@ -36,7 +36,7 @@ function script_exit_ok {
     # delete old backup files
     OIFS="$IFS"  # backup IFS
     IFS=$'\n'
-    export BACKUP_FILES=( $(ls -1cr "$BACKUP_DIR") )  # get file list, reverse sort by ctime
+    export BACKUP_FILES=( $(ls -1crp "$BACKUP_DIR" | grep -v / ) )  # get file list, reverse sort by ctime
     export BACKUP_FILES_NUMBER=${#BACKUP_FILES[@]}  # number of files
     i="0"
     while [ $i -lt $((BACKUP_FILES_NUMBER-BACKUP_FILE_COUNTER_LIMIT)) ]
