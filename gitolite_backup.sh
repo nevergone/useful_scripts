@@ -2,10 +2,11 @@
 
 ## Create backup from gitolite repositories, with optional GnuPG encryption.
 
-## executable files
+## executable files, use absolute paths
 export GITOLITE="/usr/local/bin/gitolite"
 export GPG="/usr/bin/gpg"
 export GIT="/usr/bin/git"
+export LOGGER="/usr/bin/logger"
 
 
 ## functions
@@ -42,10 +43,10 @@ function script_exit_ok {
       rm -f "$BACKUP_DIR/${BACKUP_FILES[$i]}"
       if [[ ! -e "$BACKUP_DIR/${BACKUP_FILES[$i]}" ]]; then
         echo "backup file deleted: ${BACKUP_FILES[$i]}"
-        logger "gitolite backup - success: backup file deleted: ${BACKUP_FILES[$i]}"
+        $LOGGER "gitolite backup - success: backup file deleted: ${BACKUP_FILES[$i]}"
       else
         echo "backup file not deleted: ${BACKUP_FILES[$i]}"
-        logger "gitolite backup - error: backup file not deleted: ${BACKUP_FILES[$i]}"
+        $LOGGER "gitolite backup - error: backup file not deleted: ${BACKUP_FILES[$i]}"
         exit -1
       fi
       i=$((i+1))
@@ -53,7 +54,7 @@ function script_exit_ok {
     IFS="$OIFS"  # restore original IFS
   fi
   echo $1
-  logger "gitolite backup - success: $1"
+  $LOGGER "gitolite backup - success: $1"
   exit 0
 }
 
@@ -61,7 +62,7 @@ function script_exit_error {
   # exit function: faultly operation
   script_exit_common error "$*"
   echo $1
-  logger "gitolite backup - error: $1"
+  $LOGGER "gitolite backup - error: $1"
   exit -1
 }
 
