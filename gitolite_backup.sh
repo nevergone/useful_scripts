@@ -3,9 +3,9 @@
 ## Create backup from gitolite repositories, with optional GnuPG encryption.
 
 ## executable files
-export GITOLITE="gitolite"
-export GPG="gpg"
-export GIT="git"
+export GITOLITE="/usr/local/bin/gitolite"
+export GPG="/usr/bin/gpg"
+export GIT="/usr/bin/git"
 
 
 ## functions
@@ -100,7 +100,7 @@ if [[ -n $GPG_PASSWORD ]]; then
   if [[ ! -e $TEMP_DIR/$BACKUP_FILENAME ]]; then
     script_exit_error "backup file not exist: $BACKUP_FILENAME"
   fi
-  echo "$GPG_PASSWORD" | $GPG $GPG_PARAMS --passphrase-fd 0 -c "$TEMP_DIR/$BACKUP_FILENAME"
+  echo "$GPG_PASSWORD" | $GPG $GPG_PARAMS --no-tty --passphrase-fd 0 -c "$TEMP_DIR/$BACKUP_FILENAME" > /tmp/gpg.txt 2>/tmp/gpg_e.txt
   if [[ ! -e "$TEMP_DIR/$BACKUP_FILENAME.gpg" ]]; then
     script_exit_error "gpg file not exist: $BACKUP_FILENAME.gpg"
   fi
